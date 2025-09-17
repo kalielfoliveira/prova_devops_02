@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: devops
+    networks:
+      - db-api-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nestjs:
+    build:
+      dockerfile: Dockerfile
+    container_name: api-nestjs
+    depends_on:
+      - postgres
+    ports:
+      - "3005:3005"
+    networks:
+      - db-api-network
+      - api-front-network
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=devops
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - api-front-network
+    environment:
+      - REACT_APP_API_URL=http://nestjs:3005
+    depends_on:
+      - nestjs
+
+volumes:
+  postgres_data:
+
+networks:
+  db-api-network:
+  api-front-network:
+

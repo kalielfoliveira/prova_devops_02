@@ -1,0 +1,8 @@
+# Misc
+*.pyc
+__pycache__/
+*.log
+.env
+pgdata/
+docker-compose.yml
+Dockerfile
